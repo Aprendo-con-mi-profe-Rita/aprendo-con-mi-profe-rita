@@ -150,43 +150,50 @@ const logrosPorMateria = {
   sociales: { nombre: 'Estudios Sociales', resueltos: socialSolved, total: socialQuestions.length }
 };
 
-for (const section of contenido.querySelectorAll('[data-clase]')) {
-  const materia = logrosPorMateria[section.dataset.clase];
-  const cierre = document.createElement('section');
-  cierre.className = 'card lesson';
-  const titulo = document.createElement('h3');
-  titulo.textContent = 'Finaliza la actividad';
+const resumen = document.createElement('section');
+resumen.className = 'card lesson';
+resumen.hidden = true;
+resumen.tabIndex = -1;
+curso.after(resumen);
+
+function mostrarResumen() {
+  const notas = Object.values(logrosPorMateria);
+  const completo = notas.every(materia => materia.resueltos.size === materia.total);
+  const titulo = document.createElement('h2');
+  titulo.textContent = completo ? '¡Felicitaciones, ' + estudiante.value + '!' : 'Mi avance de hoy';
+  const fecha = document.createElement('p');
+  fecha.textContent = 'Segundo Grado B · Miércoles 25 de noviembre de 2026';
+  const resultados = document.createElement('ul');
+  for (const materia of notas) {
+    const resultado = document.createElement('li');
+    const cantidad = materia.resueltos.size;
+    resultado.textContent = materia.nombre + ' · ' + cantidad + '/' + materia.total
+      + ' ejercicios correctos · ' + (cantidad === materia.total ? 'Completada' : 'Pendiente');
+    resultados.append(resultado);
+  }
+  const mensaje = document.createElement('p');
+  mensaje.textContent = completo
+    ? '¡Completaste las actividades digitales de las tres asignaturas! Familia, toma una sola captura de este resumen y envíala al grupo de WhatsApp.'
+    : 'Termina los ejercicios pendientes de las tres asignaturas para obtener tu mensaje de felicitaciones.';
+  resumen.replaceChildren(titulo, fecha, resultados, mensaje);
+  resumen.hidden = false;
+  resumen.focus();
+}
+
+function agregarBotonResumen(destino) {
   const boton = document.createElement('button');
   boton.type = 'button';
   boton.className = 'btn primary';
-  boton.textContent = 'Ver mi comprobante';
-  const aviso = document.createElement('p');
-  aviso.setAttribute('role', 'status');
-  const comprobante = document.createElement('div');
-  comprobante.className = 'lesson-note';
-  comprobante.hidden = true;
-  comprobante.tabIndex = -1;
-  boton.addEventListener('click', () => {
-    const faltan = materia.total - materia.resueltos.size;
-    if (faltan > 0) {
-      aviso.textContent = faltan === 1 ? 'Te falta resolver correctamente 1 ejercicio.' : 'Te faltan ' + faltan + ' ejercicios por resolver correctamente.';
-      comprobante.hidden = true;
-      return;
-    }
-    aviso.textContent = '';
-    const logro = document.createElement('h3');
-    logro.textContent = '¡Actividad digital completada!';
-    const datos = document.createElement('p');
-    datos.textContent = estudiante.value + ' · Segundo Grado B · Miércoles 25 de noviembre de 2026';
-    const resultado = document.createElement('p');
-    resultado.textContent = materia.nombre + ' · ' + materia.total + ' de ' + materia.total + ' ejercicios correctos';
-    const indicacion = document.createElement('p');
-    indicacion.textContent = 'Familia: toma una captura de este comprobante y envíala al grupo de WhatsApp.';
-    comprobante.replaceChildren(logro, datos, resultado, indicacion);
-    comprobante.hidden = false;
-    comprobante.focus();
-  });
-  cierre.append(titulo, boton, aviso, comprobante);
+  boton.textContent = 'Ver mi resumen';
+  boton.addEventListener('click', mostrarResumen);
+  destino.append(boton);
+}
+
+agregarBotonResumen(curso);
+for (const section of contenido.querySelectorAll('[data-clase]')) {
+  const cierre = document.createElement('section');
+  cierre.className = 'card lesson';
+  agregarBotonResumen(cierre);
   section.append(cierre);
 }
 document.getElementById('entrarCurso').addEventListener('submit', event => {
@@ -205,6 +212,7 @@ for (const button of botonesMateria) {
     for (const section of contenido.querySelectorAll('[data-clase]')) {
       section.hidden = section.dataset.clase !== button.dataset.materia;
     }
+    resumen.hidden = true;
     contenido.hidden = false;
     const heading = document.getElementById(button.dataset.materia).querySelector('h2');
     heading.tabIndex = -1;
