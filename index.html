@@ -144,6 +144,51 @@ for (const element of Array.from(contenido.children)) {
   }
   if (panel) panel.append(element);
 }
+const logrosPorMateria = {
+  matematica: { nombre: 'Matemática', resueltos: solved, total: 7 },
+  naturales: { nombre: 'Ciencias Naturales', resueltos: naturalSolved, total: naturalQuestions.length },
+  sociales: { nombre: 'Estudios Sociales', resueltos: socialSolved, total: socialQuestions.length }
+};
+
+for (const section of contenido.querySelectorAll('[data-clase]')) {
+  const materia = logrosPorMateria[section.dataset.clase];
+  const cierre = document.createElement('section');
+  cierre.className = 'card lesson';
+  const titulo = document.createElement('h3');
+  titulo.textContent = 'Finaliza la actividad';
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 'btn primary';
+  boton.textContent = 'Ver mi comprobante';
+  const aviso = document.createElement('p');
+  aviso.setAttribute('role', 'status');
+  const comprobante = document.createElement('div');
+  comprobante.className = 'lesson-note';
+  comprobante.hidden = true;
+  comprobante.tabIndex = -1;
+  boton.addEventListener('click', () => {
+    const faltan = materia.total - materia.resueltos.size;
+    if (faltan > 0) {
+      aviso.textContent = faltan === 1 ? 'Te falta resolver correctamente 1 ejercicio.' : 'Te faltan ' + faltan + ' ejercicios por resolver correctamente.';
+      comprobante.hidden = true;
+      return;
+    }
+    aviso.textContent = '';
+    const logro = document.createElement('h3');
+    logro.textContent = '¡Actividad digital completada!';
+    const datos = document.createElement('p');
+    datos.textContent = estudiante.value + ' · Segundo Grado B · Miércoles 25 de noviembre de 2026';
+    const resultado = document.createElement('p');
+    resultado.textContent = materia.nombre + ' · ' + materia.total + ' de ' + materia.total + ' ejercicios correctos';
+    const indicacion = document.createElement('p');
+    indicacion.textContent = 'Familia: toma una captura de este comprobante y envíala al grupo de WhatsApp.';
+    comprobante.replaceChildren(logro, datos, resultado, indicacion);
+    comprobante.hidden = false;
+    comprobante.focus();
+  });
+  cierre.append(titulo, boton, aviso, comprobante);
+  section.append(cierre);
+}
 document.getElementById('entrarCurso').addEventListener('submit', event => {
   event.preventDefault();
   if (!estudiante.value) return;
