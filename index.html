@@ -573,8 +573,8 @@ showClassDate();
 
   function updateProgress() {
     for (const subject of subjects) {
-      const status = document.getElementById(`estado-26-${subject.dataset.materia26}`);
-      status.textContent = completed.has(subject.dataset.materia26)
+      const status = document.getElementById(`estado-26-${subject.getAttribute('data-materia-26')}`);
+      status.textContent = completed.has(subject.getAttribute('data-materia-26'))
         ? 'Completada ✓'
         : subject.hasAttribute('data-pendiente') ? 'Contenido pendiente' : 'Por completar';
     }
@@ -594,8 +594,8 @@ showClassDate();
     if (course.hidden) return;
     const subject = subjects.find(item => item === event.target && !item.hasAttribute('data-pendiente'));
     if (!subject) return;
-    if (event.detail === true) completed.add(subject.dataset.materia26);
-    else completed.delete(subject.dataset.materia26);
+    if (event.detail === true) completed.add(subject.getAttribute('data-materia-26'));
+    else completed.delete(subject.getAttribute('data-materia-26'));
     updateProgress();
   });
 })();
