@@ -138,6 +138,8 @@ body{font-size:20px;line-height:1.5} .hero{min-height:0;grid-template-columns:1.
   <header class="card lesson">
     <h3 id="saludo-26" tabindex="-1"></h3>
       <p>Escoge una asignatura.</p>
+      <button type="button" class="btn ghost" onclick="window.speechSynthesis?.cancel()">⏹ Detener audio</button>
+      <p class="small" id="voiceStatus26" role="status"></p>
       <nav class="navlinks" aria-label="Asignaturas del jueves">
         <button class="btn primary" type="button" data-abrir-26="matematica-26" aria-controls="matematica-26" aria-pressed="false">Matemática</button>
         <button class="btn secondary" type="button" data-abrir-26="sociales-26" aria-controls="sociales-26" aria-pressed="false">Estudios Sociales</button>
@@ -382,35 +384,43 @@ const $=id=>document.getElementById(id);const synth = window.speechSynthesis;
 function narrationVoice() {
   const spanish = synth.getVoices().filter(voice => /^es(?:[-_]|$)/i.test(voice.lang));
   const latin = spanish.filter(voice => /^es[-_](?:419|AR|BO|CL|CO|CR|CU|DO|EC|GT|HN|MX|NI|PA|PE|PR|PY|SV|US|UY|VE)$/i.test(voice.lang));
-  const female = /paulina|sabina|mónica|monica|luciana|ximena|elena|valentina|dalia|fernanda|paloma|marisol|female|femenina|helena|catalina|camila|mariana|angelica|angélica/i;
-  return latin.find(voice => female.test(voice.name))
+  const female = /paulina|sabina|m[oó]nica|luciana|ximena|elena|valentina|dalia|fernanda|paloma|marisol|female|femenina|helena|catalina|camila|mariana|ang[eé]lica|salom[eé]|sofia|sof[ií]a|isabel|beatriz|camila|astrid/i;
+  const natural = /natural|neural|premium|enhanced|online|mejorada/i;
+  const isFemale = voice => female.test(voice.name);
+  return latin.find(voice => isFemale(voice) && natural.test(voice.name))
+    || latin.find(isFemale)
     || latin.find(voice => /español de estados unidos|spanish.*united states|español.*latino/i.test(voice.name))
     || latin[0]
-    || spanish.find(voice => female.test(voice.name))
+    || spanish.find(isFemale)
     || spanish[0];
 }
 
-function read(button) {
-  const status = $('voiceStatus');
+function speakClass(text, button) {
+  const status = button.closest('#clases-26') ? $('voiceStatus26') : $('voiceStatus');
   if (!synth) {
-    status.textContent = 'El navegador no admite la lectura en voz alta.';
+    status.textContent = 'Este navegador no admite la lectura en voz alta.';
     return;
   }
-  const previous = button.previousElementSibling;
-  const source = previous?.classList.contains('narrate') ? previous : button.parentElement.querySelector('.narrate');
-  if (!source) return;
-  const message = new SpeechSynthesisUtterance(source.textContent);
+  const message = new SpeechSynthesisUtterance(text.trim().replace(/\s+/g, ' '));
   const voice = narrationVoice();
   if (voice) message.voice = voice;
-  message.lang = voice?.lang || 'es-MX';
-  message.rate = 0.88;
-  message.pitch = 1.12;
+  message.lang = voice?.lang || 'es-419';
+  message.rate = 0.72;
+  message.pitch = 1;
   message.onerror = event => {
-    if (!['canceled', 'interrupted'].includes(event.error)) status.textContent = 'No se pudo reproducir el audio.';
+    if (!['canceled', 'interrupted'].includes(event.error)) {
+      status.textContent = 'No se pudo reproducir el audio. Pulsa el botón para intentarlo de nuevo.';
+    }
   };
   synth.cancel();
   status.textContent = '';
   synth.speak(message);
+}
+
+function read(button) {
+  const previous = button.previousElementSibling;
+  const source = previous?.classList.contains('narrate') ? previous : button.parentElement.querySelector('.narrate');
+  if (source) speakClass(source.innerText, button);
 }
 
 function blocks(id,d,u,xd=0,xu=0,interactive=false){let root=$(id);root.innerHTML='';for(let [name,n,x,k] of [['Decenas',d,xd,'d'],['Unidades',u,xu,'u']]){let col=document.createElement('div');col.innerHTML='<b>'+name+'</b>';for(let i=0;i<n;i++){let el=document.createElement(interactive?'button':'span');el.className=(k==='d'?'block10':'unit')+(i<x?' gone':'');if(k==='d')el.innerHTML='<i></i>'.repeat(10);if(interactive){el.type='button';el.setAttribute('aria-label',name+' '+(i+1));el.setAttribute('aria-pressed','false');el.onclick=()=>{if(k==='d'&&root.querySelectorAll('.unit.gone').length!==6){$('touchCount').textContent='Primero debes quitar seis unidades.';return;}el.classList.toggle('gone');el.setAttribute('aria-pressed',String(el.classList.contains('gone')));updateTouch();};}col.append(el);}root.append(col);}}blocks('remember',3,6);let step=0;function advance(dir){step=Math.max(0,Math.min(2,step+dir));render();}function render(){let txt=['Representamos 36: tres decenas y seis unidades.','Quitamos cinco unidades. Seis menos cinco es uno.','Quitamos dos decenas. Tres menos dos es uno. Quedan una decena y una unidad: once.'];$('stepText').textContent=txt[step];$('stepLabel').textContent='Paso '+(step+1)+' de 3: '+txt[step];blocks('demo',3,6,step===2?2:0,step>=1?5:0);$('rd').textContent=step===2?'1':'?';$('ru').textContent=step>=1?'1':'?';}render();let solved=new Set();function question(parent,id,label,answer,scored=false,touch=false){let div=document.createElement('div');div.className='exercise';div.innerHTML='<label for="'+id+'">'+label+'</label> <input id="'+id+'" type="text" inputmode="numeric" autocomplete="off"><button class="btn secondary">Comprobar</button><span class="feedback" role="status"></span>';let input=div.querySelector('input'),feedback=div.querySelector('span');div.querySelector('button').onclick=()=>{let ok=input.value.trim()!==''&&Number(input.value)===answer&&(!touch||($('touchBlocks').querySelectorAll('.unit.gone').length===6&&$('touchBlocks').querySelectorAll('.block10.gone').length===2));feedback.textContent=ok?'¡Excelente! 🌟': 'Inténtalo otra vez. Revisa las unidades y decenas.';feedback.className='feedback '+(ok?'good':'bad');if(scored){if(ok){solved.add(id);record('matematica',Number(id.slice(1)));input.readOnly=true;div.querySelector('button').disabled=true;}else solved.delete(id);$('score').textContent='Logros: '+solved.size+' de 7 ejercicios.';}};$(parent).append(div);}question('warm','w','¿Cuántas unidades tiene una decena?',10);function updateTouch(){let u=$('touchBlocks').querySelectorAll('.unit.gone').length,d=$('touchBlocks').querySelectorAll('.block10.gone').length;$('touchCount').textContent='Unidades quitadas: '+u+' de 6 · Decenas quitadas: '+d+' de 2';}function resetTouch(){blocks('touchBlocks',4,8,0,0,true);updateTouch();$('ta').value='';$('touchAnswer').querySelector('.feedback').textContent='';}question('touchAnswer','ta','¿Cuántos quedan?',22,false,true);resetTouch();question('problems','p1','Había 43 vehículos y salieron 21. ¿Cuántos quedaron?',22);question('problems','p2','Hay 35 rosas y 13 son rojas. ¿Cuántas son amarillas?',22);[[28,23],[28,17],[19,13],[33,11],[30,20],[37,25],[27,12]].forEach(([a,b],i)=>question('quiz','q'+i,a+' − '+b+' =',a-b,true));$('score').textContent='Logros: 0 de 7 ejercicios.';
@@ -566,19 +576,7 @@ showClassDate();
   }
 
   for (const button of lesson.querySelectorAll('[data-pl-audio]')) {
-    button.addEventListener('click', () => {
-      if (!window.speechSynthesis) {
-        button.title = 'El navegador no admite el audio.';
-        return;
-      }
-      const message = new SpeechSynthesisUtterance(button.dataset.plAudio);
-      const voice = narrationVoice();
-      if (voice) message.voice = voice;
-      message.lang = voice?.lang || 'es-EC';
-      message.rate = 0.82;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(message);
-    });
+    button.addEventListener('click', () => speakClass(button.dataset.plAudio, button));
   }
 
   const practice = lesson.querySelector('#pl-practice');
