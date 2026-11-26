@@ -137,6 +137,13 @@ body{font-size:20px;line-height:1.5} .hero{min-height:0;grid-template-columns:1.
 <section id="curso-26" aria-labelledby="saludo-26" hidden>
   <header class="card lesson">
     <h3 id="saludo-26" tabindex="-1"></h3>
+      <p>Escoge una asignatura.</p>
+      <nav class="navlinks" aria-label="Asignaturas del jueves">
+        <button class="btn primary" type="button" data-abrir-26="matematica-26" aria-controls="matematica-26" aria-pressed="false">Matemática</button>
+        <button class="btn secondary" type="button" data-abrir-26="sociales-26" aria-controls="sociales-26" aria-pressed="false">Estudios Sociales</button>
+        <button class="btn secondary" type="button" data-abrir-26="lengua-pl" aria-controls="lengua-pl" aria-pressed="false">Lengua y Literatura</button>
+      </nav>
+
   </header>
   <section class="card lesson" aria-labelledby="avance-titulo-26">
     <h3 id="avance-titulo-26">Mi avance del jueves 26</h3>
@@ -147,7 +154,7 @@ body{font-size:20px;line-height:1.5} .hero{min-height:0;grid-template-columns:1.
     </ul>
     <p id="avance-26" role="status"></p>
   </section>
-<details class="card lesson" id="lengua-pl" data-materia-26="lengua" open>
+<details class="card lesson" id="lengua-pl" hidden data-materia-26="lengua" open>
   <summary><strong>Lengua y Literatura · Sílabas trabadas con PL</strong></summary>
   <p class="lesson-note">Hoy vamos a leer, reconocer y escribir palabras con <b>pla, ple, pli, plo y plu</b>.</p>
 
@@ -207,7 +214,7 @@ body{font-size:20px;line-height:1.5} .hero{min-height:0;grid-template-columns:1.
   </section>
 </details>
 
-  <details class="card lesson" id="sociales-26" data-materia-26="sociales">
+  <details class="card lesson" id="sociales-26" hidden data-materia-26="sociales">
   <summary><strong>Estudios Sociales · ¡Cuidamos nuestro barrio!</strong></summary>
   <p class="lesson-note">Hoy aprenderás cómo colaborar para cuidar los lugares que compartimos.</p>
   <h3>1. Mira la lámina y escucha</h3>
@@ -264,7 +271,7 @@ body{font-size:20px;line-height:1.5} .hero{min-height:0;grid-template-columns:1.
   <p id="barrio-logro" role="status" hidden>🌟 ¡Muy bien! Completaste las actividades de Estudios Sociales.</p>
 </details>
 
-  <details class="card lesson" id="matematica-26" data-materia-26="matematica">
+  <details class="card lesson" id="matematica-26" hidden data-materia-26="matematica">
   <summary><strong>Matemática · El día y la noche</strong></summary>
   <p class="lesson-note">Vamos a reconocer qué hacemos de día y de noche y a medir cuánto dura un día completo.</p>
 
@@ -910,4 +917,34 @@ showClassDate();
     feedback.textContent = 'La sopa de letras está lista para jugar otra vez.';
   });
 })();
-</script></body></html>
+</script>
+<script>
+(() => {
+  const buttons = document.querySelectorAll('[data-abrir-26]');
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      window.speechSynthesis?.cancel();
+      for (const option of buttons) {
+        const lesson = document.getElementById(option.dataset['abrir-26']);
+        const active = option === button;
+        if (!active) {
+          for (const video of lesson.querySelectorAll('iframe')) {
+            if (video.dataset.loaded === 'true') {
+              video.src = video.src;
+              delete video.dataset.loaded;
+            }
+          }
+        }
+        option.setAttribute('aria-pressed', String(active));
+        lesson.hidden = !active;
+        if (active) {
+          lesson.open = true;
+          for (const video of lesson.querySelectorAll('iframe')) video.dataset.loaded = 'true';
+          lesson.querySelector('summary').focus();
+        }
+      }
+    });
+  }
+})();
+</script>
+</body></html>
