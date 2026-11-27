@@ -129,7 +129,35 @@ body{font-size:20px;line-height:1.5} .hero{min-height:0;grid-template-columns:1.
   <nav class="navlinks" aria-label="Fechas de clase">
     <a class="btn secondary" href="#clases-25" data-fecha="clases-25">Miércoles 25 de noviembre de 2026</a>
     <a class="btn primary" href="#clases-26" data-fecha="clases-26">Jueves 26 de noviembre de 2026</a>
+    <a class="btn primary" href="#clases-27" data-fecha="clases-27">Viernes 27 de noviembre de 2026</a>
   </nav>
+</section>
+<section id="clases-27" aria-labelledby="titulo-27" hidden>
+  <div class="card lesson perfil-fecha">
+    <strong>Estudiante: <span data-nombre-activo></span></strong>
+    <button type="button" class="btn secondary" data-cambiar-perfil>Elegir otro estudiante</button>
+  </div>
+  <header class="card lesson">
+    <h2 id="titulo-27" tabindex="-1">Viernes 27 de noviembre de 2026</h2>
+    <p>Escoge una asignatura.</p>
+    <nav class="navlinks" id="asignaturas-27" aria-label="Asignaturas del viernes">
+      <button type="button" class="btn secondary" aria-pressed="false" aria-controls="lengua-27">Lengua y Literatura</button>
+      <button type="button" class="btn secondary" aria-pressed="false" aria-controls="eca-27">Educación Cultural y Artística</button>
+      <button type="button" class="btn secondary" aria-pressed="false" aria-controls="matematica-27">Matemáticas</button>
+    </nav>
+  </header>
+  <section class="card lesson" id="lengua-27" aria-labelledby="lengua-titulo-27" hidden>
+    <h3 id="lengua-titulo-27" tabindex="-1">Lengua y Literatura</h3>
+    <p>Las actividades de esta asignatura estarán disponibles próximamente.</p>
+  </section>
+  <section class="card lesson" id="eca-27" aria-labelledby="eca-titulo-27" hidden>
+    <h3 id="eca-titulo-27" tabindex="-1">Educación Cultural y Artística</h3>
+    <p>Las actividades de esta asignatura estarán disponibles próximamente.</p>
+  </section>
+  <section class="card lesson" id="matematica-27" aria-labelledby="matematica-titulo-27" hidden>
+    <h3 id="matematica-titulo-27" tabindex="-1">Matemáticas</h3>
+    <p>Las actividades de esta asignatura estarán disponibles próximamente.</p>
+  </section>
 </section>
 <section id="clases-26" aria-labelledby="titulo-26" hidden>
   <div class="card lesson perfil-fecha">
@@ -946,6 +974,23 @@ showClassDate();
           for (const video of lesson.querySelectorAll('iframe')) video.dataset.loaded = 'true';
           lesson.querySelector('summary').focus();
         }
+      }
+    });
+  }
+})();
+</script>
+
+<script>
+(() => {
+  const buttons = document.querySelectorAll('#asignaturas-27 button');
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      for (const option of buttons) {
+        const lesson = document.getElementById(option.getAttribute('aria-controls'));
+        const selected = option === button;
+        option.setAttribute('aria-pressed', String(selected));
+        lesson.hidden = !selected;
+        if (selected) lesson.querySelector('h3').focus();
       }
     });
   }
