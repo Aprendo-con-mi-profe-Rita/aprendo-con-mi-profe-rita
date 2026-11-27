@@ -260,9 +260,21 @@ body{font-size:20px;line-height:1.5} .hero{min-height:0;grid-template-columns:1.
   </section>
 </section>
   <section class="card lesson" id="matematica-27" aria-labelledby="matematica-titulo-27" hidden>
-    <h3 id="matematica-titulo-27" tabindex="-1">Matemáticas</h3>
-    <p>Las actividades de esta asignatura estarán disponibles próximamente.</p>
-  </section>
+  <h3 id="matematica-titulo-27" tabindex="-1">Matemáticas · Ayer, hoy y mañana</h3>
+  <p class="narrate">Ayer fue el día que pasó. Hoy es el día de ahora. Mañana será el día que viene después. En esta clase, ayer fue jueves 26, hoy es viernes 27 y mañana será sábado 28.</p>
+  <button type="button" class="btn audio" onclick="read(this)">🔊 Escuchar la explicación</button>
+  <button type="button" class="btn ghost" onclick="window.speechSynthesis?.cancel()">⏹ Detener audio</button>
+  <p id="voiceStatusMat27" role="status"></p>
+  <h4>1. Observa la lámina</h4>
+  <img class="pl-poster" loading="lazy" src="Lamina_Ayer_Hoy_Manana.jpeg" alt="Lámina sobre ayer, hoy y mañana, con ejemplos de lectura, escritura y juego.">
+  <h4>2. ¿Cuándo pasó?</h4>
+  <p>Elige «ayer», «hoy» o «mañana» en cada ejemplo. Luego comprueba tus respuestas.</p>
+  <form id="tiempo-27">
+    <div class="pl-panel"><label for="tiempo-27-1"><strong>1. El día que pasó fue…</strong></label><br><select required id="tiempo-27-1" data-answer="ayer" data-clue="Ayer fue jueves 26."><option value="">Escoge una respuesta</option><option>Ayer</option><option>Hoy</option><option>Mañana</option></select><p class="tiempo-feedback"></p></div><div class="pl-panel"><label for="tiempo-27-2"><strong>2. El día de ahora es…</strong></label><br><select required id="tiempo-27-2" data-answer="hoy" data-clue="Hoy es viernes 27."><option value="">Escoge una respuesta</option><option>Ayer</option><option>Hoy</option><option>Mañana</option></select><p class="tiempo-feedback"></p></div><div class="pl-panel"><label for="tiempo-27-3"><strong>3. El día que vendrá es…</strong></label><br><select required id="tiempo-27-3" data-answer="mañana" data-clue="Mañana será sábado 28."><option value="">Escoge una respuesta</option><option>Ayer</option><option>Hoy</option><option>Mañana</option></select><p class="tiempo-feedback"></p></div><div class="pl-panel"><label for="tiempo-27-4"><strong>4. Leí un cuento el jueves 26. ¿Cuándo lo leí?</strong></label><br><select required id="tiempo-27-4" data-answer="ayer" data-clue="El jueves fue antes del viernes."><option value="">Escoge una respuesta</option><option>Ayer</option><option>Hoy</option><option>Mañana</option></select><p class="tiempo-feedback"></p></div><div class="pl-panel"><label for="tiempo-27-5"><strong>5. Escribo en mi cuaderno el viernes 27. ¿Cuándo escribo?</strong></label><br><select required id="tiempo-27-5" data-answer="hoy" data-clue="El viernes 27 es el día de la clase."><option value="">Escoge una respuesta</option><option>Ayer</option><option>Hoy</option><option>Mañana</option></select><p class="tiempo-feedback"></p></div><div class="pl-panel"><label for="tiempo-27-6"><strong>6. Jugaré con la pelota el sábado 28. ¿Cuándo jugaré?</strong></label><br><select required id="tiempo-27-6" data-answer="mañana" data-clue="El sábado viene después del viernes."><option value="">Escoge una respuesta</option><option>Ayer</option><option>Hoy</option><option>Mañana</option></select><p class="tiempo-feedback"></p></div>
+    <button type="submit" class="btn primary">Comprobar mis respuestas</button>
+    <p id="tiempo-resultado-27" role="status"></p>
+  </form>
+</section>
 </section>
 <section id="clases-26" aria-labelledby="titulo-26" hidden>
   <div class="card lesson perfil-fecha">
@@ -535,7 +547,7 @@ function narrationVoice() {
 }
 
 function speakClass(text, button) {
-  const status = button.closest('#clases-27') ? $('voiceStatus27') : button.closest('#clases-26') ? $('voiceStatus26') : $('voiceStatus');
+  const status = button.closest('#matematica-27') ? $('voiceStatusMat27') : button.closest('#clases-27') ? $('voiceStatus27') : button.closest('#clases-26') ? $('voiceStatus26') : $('voiceStatus');
   if (!synth) {
     status.textContent = 'Este navegador no admite la lectura en voz alta.';
     return;
@@ -1242,6 +1254,30 @@ showClassDate();
     if (fruit) feedback.textContent = `¡Actividad completada! Tu fruta favorita es: ${fruit}.`;
   });
   form.addEventListener('change', () => { feedback.textContent = ''; });
+})();
+</script>
+
+<script>
+(() => {
+  const form = document.getElementById('tiempo-27');
+  const fields = Array.from(form.querySelectorAll('select'));
+  const result = document.getElementById('tiempo-resultado-27');
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    let answers = 0;
+    for (const field of fields) {
+      const correct = field.value.toLowerCase() === field.dataset.answer;
+      field.nextElementSibling.textContent = correct ? '✓ ¡Bien!' : 'Intenta otra vez. ' + field.dataset.clue;
+      if (correct) answers++;
+    }
+    result.textContent = answers === fields.length
+      ? '¡Felicitaciones! Completaste la actividad de Matemáticas.'
+      : `Respuestas correctas: ${answers} de ${fields.length}.`;
+  });
+  form.addEventListener('change', event => {
+    event.target.nextElementSibling.textContent = '';
+    result.textContent = '';
+  });
 })();
 </script>
 </body></html>
